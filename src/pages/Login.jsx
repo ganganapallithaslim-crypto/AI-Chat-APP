@@ -1,66 +1,77 @@
-//Login.jsx :
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-function Login(){
+function Login() {
+  const navigate = useNavigate();
 
- const navigate = useNavigate();
- const [formData, setFormData] = useState({
- email: "",
- password: ""
- });
+  const [formData, setFormData] = useState({
+    email: "",
+    password: ""
+  });
 
- function handleChange(e){
- const {name,value} = e.target;
- setFormData({...formData,[name]: value});
- };
+  function handleChange(e) {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  }
 
- async function handleSubmit(e){
- e.preventDefault();
- try {
- const response = await fetch("http://localhost:5000/api/auth/login",
- {
- method: "POST",
- headers: {
- "Content-Type": "application/json"
- },
- body: JSON.stringify(formData)
- }
- );
- const data = await response.json();
- console.log(data);
+  async function handleSubmit(e) {
+    e.preventDefault();
 
-// SUCCESS LOGIN
- if (data.success) {
-// Store userid dynamically
- localStorage.setItem("userid",data.userId);
-// Optional popup
- alert("Login Successful");
-// Navigate to chat page
- navigate("/chat");
- } else {
- alert(data.message);
- }
- } catch (err) {
- console.log(err);
- alert("Login Error");
- }
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/auth/login`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(formData)
+        }
+      );
 
- };
+      const data = await response.json();
 
- return (
+      console.log(data);
 
- <div className="container">
- <form className="form" onSubmit={handleSubmit} >
- <h2>Login</h2>
- <input type="email" name="email" placeholder="Enter Email" onChange={handleChange} />
+      if (data.success) {
+        localStorage.setItem("userid", data.userId);
+        alert("Login Successful");
+        navigate("/chat");
+      } else {
+        alert(data.message || "Login Failed");
+      }
 
- <input type="password" name="password" placeholder="Enter Password" onChange={handleChange} />
+    } catch (err) {
+      console.log(err);
+      alert("Login Error");
+    }
+  }
 
- <button type="submit">Login</button>
- </form>
- </div>
- );
-};
+  return (
+    <div className="container">
+      <form className="form" onSubmit={handleSubmit}>
+        <h2>Login</h2>
+
+        <input
+          type="email"
+          name="email"
+          placeholder="Enter Email"
+          onChange={handleChange}
+          required
+        />
+
+        <input
+          type="password"
+          name="password"
+          placeholder="Enter Password"
+          onChange={handleChange}
+          required
+        />
+
+        <button type="submit">Login</button>
+      </form>
+    </div>
+  );
+}
 
 export default Login;
